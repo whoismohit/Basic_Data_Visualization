@@ -1,5 +1,6 @@
 import csv
 import os
+import matplotlib.pyplot as plt
 
 class Colors:
     HEADER = '\033[95m'
@@ -40,9 +41,8 @@ def display_line_chart(data, scale=1):
     print(f"\n{Colors.BOLD}LINE CHART{Colors.END}")
     max_val = max(value for _, value in data)
     height = int(max_val / scale)
-    col_width = 4  # Fixed width for alignment
+    col_width = 4
 
-    # Draw chart top to bottom
     for level in range(height, 0, -1):
         line = ''
         for _, value in data:
@@ -52,33 +52,42 @@ def display_line_chart(data, scale=1):
                 line += f"{' ':<{col_width}}"
         print(f"{Colors.BLUE}{line}{Colors.END}")
 
-    # Draw labels under chart
-    labels_line = ''.join(f"{label[:3]:<{col_width}}" for label, _ in data)  # 3 letters max for neatness
+    labels_line = ''.join(f"{label[:3]:<{col_width}}" for label, _ in data)
     print(f"{Colors.YELLOW}{labels_line}{Colors.END}")
 
+def display_pie_chart(data):
+    """Display pie chart using matplotlib."""
+    labels = [label for label, _ in data]
+    sizes = [value for _, value in data]
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+    plt.title('Pie Chart')
+    plt.axis('equal')
+    plt.show()
 
 def visualize_data(data):
     """Ask chart questions and display output."""
     while True:
-        # Sorting
         sort_choice = input("Sort by value? (y/n): ").strip().lower()
         if sort_choice == 'y':
             order = input("Ascending (a) or Descending (d)?: ").strip().lower()
             reverse = (order == 'd')
             data.sort(key=lambda x: x[1], reverse=reverse)
 
-        # Scaling
         scale = input("Enter scale factor (default 1): ").strip()
         scale = float(scale) if scale else 1
 
-        # Chart type
-        chart_type = input("Bar chart (b) or Line chart (l)?: ").strip().lower()
+        chart_type = input("Bar (b), Line (l), or Pie (p) chart?: ").strip().lower()
         if chart_type == 'b':
             display_bar_chart(data, scale)
-        else:
+        elif chart_type == 'l':
             display_line_chart(data, scale)
+        elif chart_type == 'p':
+            display_pie_chart(data)
+        else:
+            print(f"{Colors.RED}Invalid choice. Try again.{Colors.END}")
 
-        # Repeat with same data?
         again = input("\nDo you want to visualize again with the same data? (y/n): ").strip().lower()
         if again != 'y':
             break
